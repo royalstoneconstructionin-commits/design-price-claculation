@@ -1,6 +1,6 @@
 import { File } from "node:buffer";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { calculateConstruction, constructionQuotationLines, defaultConstructionForm, mergeConstructionForm } from "../construction";
+import { calculateConstruction, constructionPriceExplanation, constructionQuotationLines, defaultConstructionForm, mergeConstructionForm } from "../construction";
 import { createConstructionPdf } from "../construction-pdf";
 
 const form = { ...defaultConstructionForm, length: "40", width: "30", floors: "2" };
@@ -38,6 +38,15 @@ describe("construction pricing", () => {
   it("restores only valid stored fields", () => {
     expect(mergeConstructionForm({ length: 42, width: "25", packageId: "other", floors: null }, defaultConstructionForm)).toEqual({ ...defaultConstructionForm, width: "25" });
   });
+  it("explains the area calculation and separates package price from extras", () => {
+    const result = calculateConstruction({ ...form, mumty: "100", parapet: "50" });
+    const price = constructionPriceExplanation(result);
+    expect(price.base).toBe(4320000);
+    expect(price.extras).toBe(132000);
+    expect(price.steps[0].formula).toBe("40 ft × 30 ft");
+    expect(price.steps[1].answer).toBe("2,400 sq.ft");
+    expect(price.base + price.extras).toBe(result.total);
+  });
 });
 
 it("includes client, project, selected specifications and construction terms in the quotation", () => {
@@ -62,4 +71,19 @@ it("generates a multi-page construction PDF with client details and package spec
   expect(content).toContain("Test Client");
   expect(content).toContain("Kamdhenu / Sail");
   expect(content).toContain("Page 2 of");
+});
+
+it("keeps the pricing steps, all optional charges and the final total on the first PDF page", async () => {
+  vi.stubGlobal("File", File);
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+  const result = calculateConstruction({ ...form, packageId: "platinum", mumty: "100", parapet: "50", foundation: "1200" });
+  const file = await createConstructionPdf({ client, result });
+  const content = await file.text();
+  const firstPage = content.split("stream\n")[1].split("endstream")[0];
+  expect(firstPage).toContain("How your price is calculated");
+  expect(firstPage).toContain("40 ft x 30 ft");
+  expect(firstPage).toContain("Basement / Raft Foundation");
+  expect(firstPage).toContain("TOTAL ESTIMATED CONSTRUCTION COST");
+  expect(firstPage).toContain("Rs. 64,20,000");
+  expect(content).toContain("material allowances within the package");
 });

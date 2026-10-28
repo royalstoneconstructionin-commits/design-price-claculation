@@ -109,6 +109,19 @@ export const constructionNotes = [
   "Taxes, site-specific work, payment milestones and final scope must be agreed before acceptance. No separate tax amount has been added to this estimate.",
 ];
 export interface ConstructionQuotation { client: ClientDetails; result: ConstructionResult }
+export function constructionPriceExplanation(r: ConstructionResult) {
+  const base = r.items[0].amount;
+  const extras = Math.round(r.items.slice(1).reduce((sum, item) => sum + item.amount, 0) * 100) / 100;
+  return {
+    base,
+    extras,
+    steps: [
+      { title: "Area of one floor", formula: `${formatNumber(r.length)} ft × ${formatNumber(r.width)} ft`, answer: `${formatNumber(r.area)} sq.ft` },
+      { title: "Total construction area", formula: `${formatNumber(r.area)} sq.ft × ${r.floors} floor${r.floors === 1 ? "" : "s"}`, answer: `${formatNumber(r.totalArea)} sq.ft` },
+      { title: `${r.selected.name} package cost`, formula: `${formatNumber(r.totalArea)} sq.ft × ${formatINR(r.selected.rate)}/sq.ft`, answer: formatINR(base) },
+    ],
+  };
+}
 export function constructionQuotationLines(q: ConstructionQuotation): string[] {
   const { client: c, result: r } = q;
   return [

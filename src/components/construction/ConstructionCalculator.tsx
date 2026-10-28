@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Download, MessageCircle, Printer, Share2 } from "lucide-react";
 import { Card, Field, Row, inputClass } from "@/components/ui";
-import CompanyLogo from "@/components/CompanyLogo";
+import ConstructionQuotationPreview from "./ConstructionQuotationPreview";
 import ClientDetailsForm from "@/components/quotation/ClientDetailsForm";
 import { branding } from "@/lib/branding";
 import { calculateConstruction, constructionFeatures, constructionNotes, constructionPackages, defaultConstructionForm, mergeConstructionForm, type ConstructionForm, type ConstructionQuotation } from "@/lib/construction";
@@ -187,18 +187,7 @@ export default function ConstructionCalculator() {
         </div>
       </details>
 
-      {result.valid && <article id="construction-quotation" className="scroll-mt-4 rounded-2xl border border-stone-200 bg-white p-5 sm:p-8 print:rounded-none print:border-0 print:p-0">
-        <div className="flex items-center gap-4 border-b border-stone-200 pb-5"><CompanyLogo branding={branding} className="h-20 w-20 shrink-0" /><div><p className="text-xl font-bold text-stone-900">{branding.companyName}</p><p className="text-sm text-stone-500">{branding.priorityLine}</p><p className="text-sm">+91-{branding.phone} · {branding.email}</p><p className="whitespace-pre-line text-xs text-stone-500">{branding.address}</p><p className="text-xs text-stone-500">Reg. No. {branding.registrationNumber}</p></div></div>
-        <div className="my-5 flex flex-wrap justify-between gap-3"><h2 className="text-xl font-bold text-red-700">CONSTRUCTION QUOTATION</h2><div className="text-sm"><p>No: {client.quotationNumber}</p><p>Date: {client.quotationDate ? formatDateText(client.quotationDate) : "—"}</p><p>Valid until: {client.quotationDate ? formatDateText(addDaysISO(client.quotationDate, 15)) : "—"}</p></div></div>
-        {!detailsValid && <p className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 print:hidden">Draft preview — complete the client details before downloading or sending.</p>}
-        <div className="grid gap-4 border-y border-stone-200 py-4 text-sm sm:grid-cols-2"><div><h3 className="mb-2 font-semibold">Client & project</h3><p>{client.name || "Client name"}</p><p>{client.mobile || "Client phone"}</p><p className="whitespace-pre-wrap break-words">{client.address || "Project address"}</p></div><div><h3 className="mb-2 font-semibold">{result.selected.name} package · {formatINR(result.selected.rate)}/sq.ft</h3><p>Length × width: {formatNumber(result.length)} × {formatNumber(result.width)} ft</p><p>Area per floor: {formatNumber(result.area)} sq.ft</p><p>Floors including ground: {result.floors}</p><p>Total built-up area: {formatNumber(result.totalArea)} sq.ft</p></div></div>
-        <div className="my-5 overflow-x-auto"><table className="w-full text-left text-sm"><caption className="sr-only">Construction quotation price breakdown</caption><thead><tr className="border-b"><th className="py-2 pr-3">Description</th><th className="px-2 py-2">Area (sq.ft)</th><th className="px-2 py-2">Rate / sq.ft</th><th className="py-2 pl-2 text-right">Amount</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.label} className="border-b border-stone-100"><td className="py-3 pr-3">{item.label}</td><td className="px-2 py-3">{formatNumber(item.area)}</td><td className="px-2 py-3">{formatINR(item.rate)}</td><td className="py-3 pl-2 text-right">{formatINR(item.amount)}</td></tr>)}</tbody></table></div>
-        <p className="mb-6 rounded-xl bg-red-50 p-4 text-right text-xl font-bold text-red-800">Total: {formatINR(result.total)}</p>
-        <h3 className="mb-3 text-lg font-semibold">Included package specifications</h3>
-        {constructionFeatures.map((section) => <section key={section.title} className="mb-4"><h4 className="bg-stone-100 px-3 py-2 font-semibold">{section.title}</h4>{section.note && <p className="px-3 pt-2 text-xs text-stone-500">{section.note}</p>}<dl>{section.rows.map((row) => <div key={row.label} className="grid gap-1 border-b border-stone-100 px-3 py-2 text-sm sm:grid-cols-2 print:break-inside-avoid"><dt className="text-stone-600">{row.label}</dt><dd>{row.values[result.index]}</dd></div>)}</dl></section>)}
-        <h3 className="mb-2 mt-6 font-semibold">Terms & clarifications</h3><ul className="list-disc space-y-2 pl-5 text-sm text-stone-600">{constructionNotes.map((note) => <li key={note}>{note}</li>)}</ul>
-        <div className="mt-10 flex justify-between gap-5 text-sm"><p>Client acceptance: ________________</p><p>Authorised signature: ________________</p></div>
-      </article>}
+      {result.valid && <ConstructionQuotationPreview quotation={quotation} draft={!detailsValid} />}
     </div>
   );
 }
