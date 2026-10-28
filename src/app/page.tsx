@@ -18,6 +18,7 @@ import CalculationSummary from "@/components/calculator/CalculationSummary";
 import PricingBreakdown from "@/components/calculator/PricingBreakdown";
 import PaymentSchedule from "@/components/calculator/PaymentSchedule";
 import CompanyLogo from "@/components/CompanyLogo";
+import CalculatorNavigation from "@/components/CalculatorNavigation";
 
 export default function CalculatorPage() {
   const [form, setForm] = usePersistedState<FormState>(FORM_STORAGE_KEY, defaultForm, mergeForm);
@@ -57,6 +58,10 @@ export default function CalculatorPage() {
           </Link>
         </div>
       </header>
+
+      <div className="mx-auto max-w-6xl px-4 pt-6">
+        <CalculatorNavigation active="design" />
+      </div>
 
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start lg:gap-6 lg:pb-10">
         <div className="space-y-4">

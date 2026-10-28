@@ -26,6 +26,7 @@ import type { FormState } from "@/types/calculator";
 import ClientDetailsForm from "@/components/quotation/ClientDetailsForm";
 import QuotationPreview from "@/components/quotation/QuotationPreview";
 import PaymentSchedule from "@/components/calculator/PaymentSchedule";
+import CalculatorNavigation from "@/components/CalculatorNavigation";
 
 export default function QuotationPage() {
   const [form, setForm, formReady] = usePersistedState<FormState>(FORM_STORAGE_KEY, defaultForm, mergeForm);
@@ -178,6 +179,9 @@ export default function QuotationPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-10 pt-4">
+      <div className="mb-6 print:hidden">
+        <CalculatorNavigation active="design" />
+      </div>
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Link href="/" className="flex h-10 items-center gap-2 text-sm font-medium text-emerald-800">
           <ArrowLeft className="h-4 w-4" /> Back to calculator
